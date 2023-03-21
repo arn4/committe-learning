@@ -36,7 +36,7 @@ class BaseODE():
     Methods you need to define to make a class work:
      - self.risk(): compute the current state risk
      - self._save_step()
-     - self._save_update()
+     - self._update_step()
     """
 
   def fit(self, time, n_saved_points=20, show_progress=True):
