@@ -20,17 +20,18 @@ class SquaredPhaseRetrivialSDE(SquaredActivationODE):
     )
     self.d = float(d)
     
-    if seed is not None:
-      seed ^= 22031998 # this line is shuffling the seed just to ensure that I'm not using it on every generator
+    # if seed is not None:
+    #   seed ^= 22031998 # this line is shuffling the seed just to ensure that I'm not using it on every generator
     self.rng = np.random.default_rng(seed)
 
   def _variances(self):
     q = self.Q[0][0]
     m = self.M[0][0]
     rho = self.P[0][0]
+    # In phase retrivial gamma_over_p = gamma
     return (
-      max(_variance_q(q,m,rho,self.gamma0,self.noise), 0.),
-      max(_variance_m(q,m,rho,self.gamma0,self.noise), 0.)
+      max(_variance_q(q,m,rho,self._gamma_over_p,self.noise), 0.),
+      max(_variance_m(q,m,rho,self._gamma_over_p,self.noise), 0.)
     )
   
   def _update_step(self):
