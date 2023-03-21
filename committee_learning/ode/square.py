@@ -35,10 +35,6 @@ class SquaredActivationODE(BaseFullODE, BaseSquaredActivationODE):
   This is different from what I did in Master Internship (where t = nu / d),
   but this is the best choice to use this equations in general.
   """
-  # def __init__(self, P0, Q0, M0, dt, quadratic_terms = False, gamma_over_p = 0., noise = 0.):
-  #   super().__init__(P0, Q0, M0, dt, quadratic_terms, gamma_over_p, noise)
-  #   super().__init__()
-
 
   def _compute_Phi_Psi(self):
     """
