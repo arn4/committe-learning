@@ -20,7 +20,10 @@ def _variance_m(q,m,rho,gamma,noise):
 
 def _covariance_qm(q,m,rho,gamma,noise):
   return (
-    0.
+    -912*m**3*q*gamma + 768*m*q**3*gamma - 2880*m**5*gamma**2 + 14544*m**3*q**2*gamma**2 - 7200*m*q**4*gamma**2 + 
+    24*m*q*gamma*noise + 144*m**3*gamma**2*noise - 336*m*q**2*gamma**2*noise + 432*m**3*gamma*rho - 624*m*q**2*gamma*rho - 
+    13536*m**3*q*gamma**2*rho + 7056*m*q**3*gamma**2*rho + 192*m*q*gamma**2*noise*rho + 336*m*q*gamma*rho**2 + 
+    4752*m**3*gamma**2*rho**2 - 5184*m*q**2*gamma**2*rho**2 + 2448*m*q*gamma**2*rho**3
   )
 
 

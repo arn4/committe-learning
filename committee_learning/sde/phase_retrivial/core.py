@@ -49,14 +49,29 @@ class SphericalSquaredPhaseRetrivialSDE(SquaredPhaseRetrivialSDE, SphericalSquar
       quadratic_terms = quadratic_terms, seed = seed
     )
 
-  def _step_update(self):
+  def _variances(self):
+    varQ, varM = super()._variances()
+    q = self.Q[0][0]
+    m = self.M[0][0]
+    rho = self.P[0][0]
+    covQM = _covariance_qm(q, m ,rho, self._gamma_over_p, self.noise)
+    return (
+      varQ,
+      varM,
+      # Enforce the covariance matrix to be positive semi-definite
+      covQM if covQM**2 > varQ*varM else np.sign(covQM) * np.sqrt(varQ*varM)
+    )
+
+
+  def _update_step(self):
     m = self.M[0][0]
     # Variance matrix
-    varQ, varM = self._variances()
-    Sigma = np.array([[varQ, 0.],
-                      [0., varM]]) / self.d
+    varQ, varM, covQM = self._variances()
+
+    Sigma = np.array([[varQ, covQM],
+                      [covQM, varM]]) / self.d
     # std matrix
-    sigma_q, sigma_m = sqrtm(Sigma)
+    sigma_q, sigma_m = sqrtm(Sigma).real
 
     stochastich_term = np.einsum(
       'i,ijk->jk',
@@ -66,7 +81,7 @@ class SphericalSquaredPhaseRetrivialSDE(SquaredPhaseRetrivialSDE, SphericalSquar
 
     extra_drift = (3/8 * m * np.dot(sigma_q, sigma_q) - .5 * np.dot(sigma_q, sigma_m))
 
-    Phi, Psi = super()._compute_Phi_Psi()
+    Phi, Psi = super(SphericalSquaredActivationODE, self)._compute_Phi_Psi()
     self.M += (Psi - m/2 * Phi + extra_drift) * self.dt + stochastich_term * np.sqrt(self.dt)
 
 

@@ -5,7 +5,7 @@ import numpy as np
 
 ## Plotting
 class plot_style():
-  def __init__(self, fontsize=12, latex = True, style='seaborn'):
+  def __init__(self, fontsize=12, latex = True, style='classic'):
     # Some check on MatplotLib import
     self.fontsize = fontsize
     self.latex = latex
