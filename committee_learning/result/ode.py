@@ -64,15 +64,9 @@ class FullODEResult(BaseODEResult):
     self.quadratic_terms = ode.quadratic_terms
     self.Qs=np.array(ode.saved_Qs).tolist()
   
-  def get_initial_condition_id(self):
-    # Achtung!! Changing this function make all previous generated data unacessible!
-    # Consider producing a script of conversion before apply modifications.
-    ic_string = self.initial_condition
-    if ic_string is None:
-      ic_string = np.random.randint(int(1e9))
-
-    datastring = '_'.join([
-      str(ic_string),
+  @property
+  def datastring(self):
+    return [
       f"{self.activation}"
       f"{self.p}",
       f"{self.k}",
@@ -83,8 +77,7 @@ class FullODEResult(BaseODEResult):
       f"{self.dt:.6f}",
       f'{self.noise_term}',
       f"{self.id}"
-    ])
-    return hashlib.md5(datastring.encode('utf-8')).hexdigest()
+    ]
 
 
 ## LargePErfOdeResult History
@@ -106,15 +99,9 @@ class LargePODEResult(BaseODEResult):
     self.offdiagonal = ode.offdiagonal
     self.noise_gamma_over_p=float(ode._noise_gamma_over_p) if ode._noise_gamma_over_p is not None else 'None'
   
-  def get_initial_condition_id(self):
-    # Achtung!! Changing this function make all previous generated data unacessible!
-    # Consider producing a script of conversion before apply modifications.
-    ic_string = self.initial_condition
-    if ic_string is None:
-      ic_string = np.random.randint(int(1e9))
-
-    datastring = '_'.join([
-      str(ic_string),
+  @property
+  def datastring(self):
+    return [
       f'{self.activation}'
       f'{self.p}',
       f'{self.k}',
@@ -124,5 +111,4 @@ class LargePODEResult(BaseODEResult):
       f'{self.noise_gamma_over_p}',
       f'{self.offdiagonal}',
       f'{self.id}'
-    ])
-    return hashlib.md5(datastring.encode('utf-8')).hexdigest()
+    ]

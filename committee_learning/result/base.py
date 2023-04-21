@@ -1,5 +1,7 @@
 import yaml
 import os
+import hashlib
+import numpy as np
 
 class BaseResult():
   """"
@@ -33,3 +35,16 @@ class BaseResult():
     os.makedirs(path, exist_ok=True)
     with open(full_path_filename, 'w') as file:
       yaml.dump(data, file)
+
+  def get_initial_condition_id(self):
+    # Achtung!! Changing this function make all previous generated data unacessible!
+    # Consider producing a script of conversion before apply modifications.
+    ic_string = self.initial_condition
+    if ic_string is None:
+      ic_string = np.random.randint(int(1e9))
+
+    datastring = '_'.join([
+      str(ic_string),
+      *self.datastring # Must be defined in the subclass!
+    ])
+    return hashlib.md5(datastring.encode('utf-8')).hexdigest()

@@ -51,8 +51,15 @@ def get_extensions():
       extra_compile_args=extra_compile_args
   )
 
+  cython_numpy_extra = Extension(
+      name='committee_learning._cython.numpy_extra',
+      sources=['committee_learning/_cython/numpy_extra.pyx'],
+      include_dirs=include_dirs,
+      extra_compile_args=extra_compile_args
+  )
+
   return cythonize(
-    [cython_risk, cython_ode_erf],
+    [cython_risk, cython_ode_erf, cython_numpy_extra],
     compiler_directives={'language_level':3},
     annotate=True
   )

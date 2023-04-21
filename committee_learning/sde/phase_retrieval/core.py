@@ -5,7 +5,7 @@ from scipy.linalg import sqrtm
 
 from .variance import _variance_q, _variance_m, _covariance_qm
 
-class SquaredPhaseRetrivialSDE(SquaredActivationODE):
+class PhaseRetrievalSDE(SquaredActivationODE):
 
   def __init__(self, p0, q0, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None):
     super().__init__(
@@ -22,13 +22,14 @@ class SquaredPhaseRetrivialSDE(SquaredActivationODE):
     
     # if seed is not None:
     #   seed ^= 22031998 # this line is shuffling the seed just to ensure that I'm not using it on every generator
+    self.seed = seed
     self.rng = np.random.default_rng(seed)
 
   def _variances(self):
     q = self.Q[0][0]
     m = self.M[0][0]
     rho = self.P[0][0]
-    # In phase retrivial gamma_over_p = gamma
+    # In phase retrieval gamma_over_p = gamma
     return (
       max(_variance_q(q,m,rho,self._gamma_over_p,self.noise), 0.),
       max(_variance_m(q,m,rho,self._gamma_over_p,self.noise), 0.)
@@ -37,17 +38,19 @@ class SquaredPhaseRetrivialSDE(SquaredActivationODE):
   def _update_step(self):
     super()._update_step()
     varQ, varM = self._variances()
+    # I think this implementation is wrong, why don't I take the sqrt of the Covariance matrix?
     self.Q += self.rng.normal() * np.sqrt(varQ * self.dt / self.d)
     self.M += self.rng.normal() * np.sqrt(varM * self.dt / self.d)
 
 
-class SphericalSquaredPhaseRetrivialSDE(SquaredPhaseRetrivialSDE, SphericalSquaredActivationODE):
-  def __init__(self, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None):
+class SphericalPhaseRetrievalSDE(PhaseRetrievalSDE, SphericalSquaredActivationODE):
+  def __init__(self, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, extra_drift = False, seed = None):
     super().__init__(
       p0 = 1., q0 = 1., m0 = m0, d = d, dt = dt,
       noise_term = noise_term, gamma_over_p = gamma_over_p, noise = noise,
       quadratic_terms = quadratic_terms, seed = seed
     )
+    self.extra_drift = extra_drift
 
   def _variances(self):
     varQ, varM = super()._variances()
@@ -69,7 +72,7 @@ class SphericalSquaredPhaseRetrivialSDE(SquaredPhaseRetrivialSDE, SphericalSquar
     varQ, varM, covQM = self._variances()
 
     Sigma = np.array([[varQ, covQM],
-                      [covQM, varM]]) / self.d
+                      [covQM, varM]]) / (self.d) * self._gamma_over_p
     # std matrix
     sigma_q, sigma_m = sqrtm(Sigma).real
 
@@ -79,9 +82,12 @@ class SphericalSquaredPhaseRetrivialSDE(SquaredPhaseRetrivialSDE, SphericalSquar
       self.rng.normal(size=(2,1,1))
     )
 
-    extra_drift = (3/8 * m * np.dot(sigma_q, sigma_q) - .5 * np.dot(sigma_q, sigma_m))
+    if self.extra_drift:
+      extra_drift_term = (3/8 * m * np.dot(sigma_q, sigma_q) - .5 * np.dot(sigma_q, sigma_m))
+    else:
+      extra_drift_term = 0.
 
-    Phi, Psi = super(SphericalSquaredActivationODE, self)._compute_Phi_Psi()
-    self.M += (Psi - m/2 * Phi + extra_drift) * self.dt + stochastich_term * np.sqrt(self.dt)
+    Phi, Psi = SphericalSquaredActivationODE._compute_Phi_Psi(self)
+    self.M += (Psi + extra_drift_term) * self.dt + stochastich_term * np.sqrt(self.dt)
 
 

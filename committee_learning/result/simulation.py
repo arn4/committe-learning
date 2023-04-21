@@ -41,15 +41,10 @@ class SimulationResult(BaseResult):
       setattr(self, extra_metric_name, getattr(simulation, extra_metric_name))
     
     self.extra_metrics_names = '__'.join(map(str, simulation.extra_metrics.keys()))
-  def get_initial_condition_id(self):
-    # Achtung!! Changing this function make all previous generated data unacessible!
-    # Consider producing a script of conversion before apply modifications.
-    ic_string = self.initial_condition
-    if ic_string is None:
-      ic_string = np.random.randint(int(1e9))
-
-    datastring = '_'.join([
-      str(ic_string),
+  
+  @property
+  def datastring(self):
+    return [
       f'{self.d}',
       f'{self.p}',
       f'{self.k}',
@@ -59,8 +54,7 @@ class SimulationResult(BaseResult):
       f'{self.completed_steps}',
       f'{self.id}',
       self.extra_metrics_names
-    ])
-    return hashlib.md5(datastring.encode('utf-8')).hexdigest()
+    ]
 
   def from_file_or_run(self, simulation, decades, save_per_decade = 100, path='', show_progress=True, force_run=False, force_read=False):
     if force_run and force_read:
