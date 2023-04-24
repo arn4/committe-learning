@@ -2,8 +2,9 @@
 
 from .ode import FullODEResult
 
-## PRSDEResult History (matcing the FullOdeResult numbering)
+## PRSDEResult History (matching the FullOdeResult numbering)
 # - 0.3.0: first usable version
+# - 0.4.0: update at FullOdeResult
 
 class PhaseRetrievalSDEResult(FullODEResult):
   def __init__(self, initial_condition = None, id = 0, **kattributes):

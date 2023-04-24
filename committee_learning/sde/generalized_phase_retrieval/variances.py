@@ -2,7 +2,7 @@ import numpy as np
 
 from ..._cython.numpy_extra import symmetrize
 
-def p2variance(q11, q12, q22, m1, m2, gamma, noise): 
+def p2variance(q11, q12, q22, m1, m2, gamma, noise):
     return symmetrize(np.array([
         # Var[q11]
         320*m1**4 + 576*gamma**2*noise*m1**4 + 5376*gamma*m1**4 + 19584*gamma**2**2*m1**4 - 5760*gamma**2*m1**6 - 5760*gamma**2*m1**4*m2**2 + 544*gamma*noise*m1**2*q11 + 1088*m1**2*q22 + 1632*gamma**2*noise*m1**2*q22 + 8352*gamma**2*m1**2*q22 + 

@@ -3,6 +3,7 @@ from ...ode import SquaredActivationODE, SphericalSquaredActivationODE
 import numpy as np
 from scipy.linalg import sqrtm
 
+from ..base import BaseSDE
 from ..._cython.numpy_extra import symmetrize
 from .variances import p2variance
 
@@ -11,15 +12,12 @@ Order of variables:
 q11, q12,..., q1p, q22, q23, q24,..., q2p,...,qpp, m11, m21,...,mp1
 """
 
-class SphericalGeneralizedPhaseRetrievalSDE(SphericalSquaredActivationODE):
+class SphericalGeneralizedPhaseRetrievalSDE(BaseSDE, SphericalSquaredActivationODE):
     def __init__(self, Q0, M0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None):
         # assert(sum((np.diag(Q0)-np.ones((Q0.shape[0])))**2)==0.)
         P0 = np.array([[1.]])
-        super().__init__(P0, Q0, M0, dt, noise_term = noise_term, gamma_over_p = gamma_over_p, noise = noise, quadratic_terms = quadratic_terms)
+        super().__init__(P0, Q0, M0, dt, noise_term = noise_term, gamma_over_p = gamma_over_p, noise = noise, quadratic_terms = quadratic_terms, seed=seed)
         self.d = float(d)
-    
-        self.seed = seed
-        self.rng = np.random.default_rng(seed)
 
         if Q0.shape[0] == 2:
             def _variance_method(M, Q):
@@ -32,7 +30,11 @@ class SphericalGeneralizedPhaseRetrievalSDE(SphericalSquaredActivationODE):
         p = self.Q.shape[0]
 
         variance = self._variance(self.M, self.Q)
-        sigma = sqrtm(variance).real * self._gamma_over_p/self.d
+        try:
+            sigma = sqrtm(variance).real * self._gamma_over_p/self.d
+        except ValueError:
+            print(variance)
+            exit(1)
         brownian = self.rng.normal(size=variance.shape[0]) 
 
         unconstrainted_stochastic_term = np.einsum('ij,j->i', sigma, brownian)

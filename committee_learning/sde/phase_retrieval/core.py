@@ -16,14 +16,10 @@ class PhaseRetrievalSDE(SquaredActivationODE):
       noise_term = noise_term,
       gamma_over_p = gamma_over_p,
       noise = noise,
-      quadratic_terms = quadratic_terms
+      quadratic_terms = quadratic_terms,
+      seed = seed
     )
     self.d = float(d)
-    
-    # if seed is not None:
-    #   seed ^= 22031998 # this line is shuffling the seed just to ensure that I'm not using it on every generator
-    self.seed = seed
-    self.rng = np.random.default_rng(seed)
 
   def _variances(self):
     q = self.Q[0][0]

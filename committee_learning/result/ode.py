@@ -45,10 +45,11 @@ class BaseODEResult(BaseResult):
       self.to_file(path=path)
 
 
-## OdeResult History
+## OdeResult History ( remeber to update also SDEResult)
 # - 0.1: first usable version
 # - 0.2: BIG change -- this becomes the Result Class for all ODEs
 # - 0.3: noise_term
+# - 0.4: typo in datastring + added save_per_decade
 
 class FullODEResult(BaseODEResult):
   def __init__(self, initial_condition = None, id = 0, **kattributes):
@@ -67,7 +68,7 @@ class FullODEResult(BaseODEResult):
   @property
   def datastring(self):
     return [
-      f"{self.activation}"
+      f"{self.activation}",
       f"{self.p}",
       f"{self.k}",
       f"{self.noise:.6f}",
@@ -76,7 +77,8 @@ class FullODEResult(BaseODEResult):
       f"{self.simulated_time:.6f}",
       f"{self.dt:.6f}",
       f'{self.noise_term}',
-      f"{self.id}"
+      f"{self.id}",
+      f"{self.save_per_decade}"
     ]
 
 

@@ -1,8 +1,11 @@
 import numpy as np
 from tqdm import tqdm
 
-class OrnsteinUhlenbeck():
+from .base import BaseSDE
+
+class OrnsteinUhlenbeck(BaseSDE):
   def __init__(self, X0, mu, sigma, dt, save_interval, seed = None):
+    super().__init__(seed = seed)
     """"
     We are simulating:
     dX = -mu X dt + sigma dW
@@ -15,7 +18,6 @@ class OrnsteinUhlenbeck():
     self.sigma = sigma
     self.dt = dt 
     self.save_interval = save_interval
-    self.rng = np.random.default_rng(seed)
 
   def _step(self):
     self._steps += 1
