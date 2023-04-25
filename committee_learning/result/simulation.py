@@ -13,13 +13,14 @@ from ..utilities import upper_bound
 # - 0.4: added the macroscopic variables
 # - 0.5: added a separator in the datastring
 # - 0.6: extra_metrics support (btw, should be retrocompatible)
+# - 0.7: added seed and made it different from id; added target_save_per_decade
 
 class SimulationResult(BaseResult):
   def __init__(self,initial_condition = None, id = 0, **kattributes):
     super().__init__(initial_condition=initial_condition, id=id, **kattributes)
 
     # This is an identifier for which file version I'm using to store files
-    self.version = '0.6'
+    self.version = '0.7'
   
   def from_simulation(self, simulation: BaseSimulation):
     self.timestamp = str(datetime.datetime.now())
@@ -28,6 +29,7 @@ class SimulationResult(BaseResult):
     self.k = simulation.k
     self.noise = simulation.noise
     self.gamma = simulation.gamma
+    self.seed = simulation.seed
     self.completed_steps = simulation._completed_steps
     self.save_per_decade = len(simulation.saved_steps)/int(np.log10(simulation._completed_steps)) if len(simulation.saved_steps)>0 else None
     self.activation = simulation.activation
@@ -52,6 +54,8 @@ class SimulationResult(BaseResult):
       f'{self.noise:.6f}',
       f'{self.gamma:.6f}',
       f'{self.completed_steps}',
+      f'{self.save_per_decade_target}',
+      f'{self.seed}',
       f'{self.id}',
       self.extra_metrics_names
     ]
@@ -61,6 +65,7 @@ class SimulationResult(BaseResult):
       raise ValueError('Flags force_read and force_run can be both true!')
     self.from_simulation(simulation)
     self.completed_steps = int(10**decades)
+    self.save_per_decade_target = save_per_decade 
     try:
       if force_run:
         raise FileNotFoundError
@@ -68,7 +73,7 @@ class SimulationResult(BaseResult):
     except FileNotFoundError as file_error:
       if force_read:
         raise file_error
-      simulation.fit_logscale(decades, save_per_decade = save_per_decade, show_progress=show_progress, seed=self.id)
+      simulation.fit_logscale(decades, save_per_decade = save_per_decade, show_progress=show_progress)
       self.from_simulation(simulation)
       self.to_file(path=path)
 
