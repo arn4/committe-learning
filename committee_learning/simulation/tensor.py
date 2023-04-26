@@ -25,17 +25,17 @@ class TensorErfCommiteeMachine():
     return self.W.numpy()
 
 class TensorSimulation(BaseSimulation):
-  def __init__(self, d, p, k, gamma, Wt, W0, noise = 0., activation = 'erf', seed = None, disable_QM_save = False, extra_metrics = {}):
+  def __init__(self, d, p, k, gamma, Wt, W0, noise = 0., activation = 'erf', disable_QM_save = False, extra_metrics = {}):
     if activation != 'erf':
-      raise NotImplementedError('Tensor simulation can compute only erf activation function.')
-    super().__init__(d, p, k, gamma, Wt, W0, noise, activation, seed, disable_QM_save, extra_metrics)
+      raise NotImplementedError('Numpy simulation can compute only erf activation function.')
+    super().__init__(d, p, k, gamma, Wt, W0, noise, activation, disable_QM_save, extra_metrics)
     self.teacher = TensorErfCommiteeMachine(d, k, Wt)
     self.student = TensorErfCommiteeMachine(d, p, W0)
     self.theoretical_risk = erf_risk
 
   def _gradient_descent_step(self, y_student, y_teacher_noised, x):
     p = int(self.student.hidden_size)
-    prefactor = self.gamma * (y_student-y_teacher_noised)/p * np.sqrt(2/(np.pi*self.d))
+    prefactor = self.gamma * (y_student-y_teacher_noised) /p * np.sqrt(2/(np.pi*self.d))
     hidden_node = torch.tensordot(self.student.W, x, ([-1],[-1]))
     xx = torch.cat([x]*p)
     hh = torch.cat([hidden_node]*self.d,1)
