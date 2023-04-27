@@ -67,8 +67,8 @@ class BaseODE():
 
 
 class BaseFullODE(BaseODE):
-  def __init__(self, P0, Q0, M0, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False):
-    super().__init__(P0, Q0, M0, dt, noise_term)
+  def __init__(self, P0, Q0, M0, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, disableQM_save=False):
+    super().__init__(P0, Q0, M0, dt, noise_term, disableQM_save)
 
     self.Q = np.array(Q0, ndmin=2, dtype=scalar_type)
     if noise_term:
@@ -92,8 +92,8 @@ class BaseLargePODE(BaseODE):
   We just need to track the diagonal of Q^orth and M, so no need to evolve a p x p matrix,
   that would be unfesible.
   """
-  def __init__(self, P0, Q0, M0, dt, offdiagonal = True, d = None, noise_term = True, noise_gamma_over_p = None):
-    super().__init__(P0, Q0, M0, dt, noise_term)
+  def __init__(self, P0, Q0, M0, dt, offdiagonal = True, d = None, noise_term = True, noise_gamma_over_p = None, disableQM_save=False):
+    super().__init__(P0, Q0, M0, dt, noise_term, disableQM_save)
 
     if offdiagonal:
       assert(d is not None)

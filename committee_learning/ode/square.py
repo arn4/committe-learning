@@ -6,8 +6,8 @@ from .._config.python import scalar_type
 from .base import BaseODE, BaseFullODE, BaseLargePODE
 
 class BaseSquaredActivationODE(BaseODE):
-  def __init__(self, P0, Q0, M0, dt, noise_term):
-    super().__init__(P0, Q0, M0, dt, noise_term)
+  def __init__(self, P0, Q0, M0, dt, noise_term, disableQM_save=False):
+    super().__init__(P0, Q0, M0, dt, noise_term, disableQM_save)
     # Precomputation
     self._1_k = scalar_type(1./self.k)
     self._1_p = scalar_type(1./self.p)
