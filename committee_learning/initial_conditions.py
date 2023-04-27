@@ -11,7 +11,7 @@ class MockIntialCondition():
   """
   def __init__(self, p, k, d):
     self.W0 = np.zeros((p,d))
-    self.Wt = np.zeros((p,d))
+    self.Wt = np.zeros((k,d))
     self.Q = np.zeros((p,p))
     self.M = np.zeros((p,k))
     self.P = np.zeros((k,k))

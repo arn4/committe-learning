@@ -14,7 +14,8 @@ def exit_time(ts, Rs, T, R0 = None):
     time_index = np.argmin(Rs > R0*(1.-T))
 
     if Rs[time_index] > R0*(1.-T):
-        raise ValueError('The theshold is never crossed!')
+        # raise ValueError('The theshold is never crossed!')
+        return ts[-1]
     return ts[time_index]
 
 
