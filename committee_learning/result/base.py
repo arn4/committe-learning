@@ -47,4 +47,5 @@ class BaseResult():
       str(ic_string),
       *self.datastring # Must be defined in the subclass!
     ])
+    # print(datastring)
     return hashlib.md5(datastring.encode('utf-8')).hexdigest()
