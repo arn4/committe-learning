@@ -40,7 +40,7 @@ class CommiteeMachine(torch.nn.Module):
 
 
 class Simulation(BaseSimulation):
-  def __init__(self, d, p, k, gamma, Wt, W0, noise = 0., activation = 'square',seed = None, disable_QM_save = False, extra_metrics = {}):
+  def __init__(self, d, p, k, gamma, Wt, W0, noise = 0., activation = 'square', seed = None, disable_QM_save = False, extra_metrics = {}):
     super().__init__(d, p, k, gamma, Wt, W0, noise, activation, seed, disable_QM_save, extra_metrics)
     self.teacher = CommiteeMachine(d, k, activation=activation, W=Wt, teacher=True)
     self.student = CommiteeMachine(d, p, activation=activation, W=W0)

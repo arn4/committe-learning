@@ -56,7 +56,7 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
             )
             intgr_result = SimulationResult(
                 initial_condition='time-measure'+(icid.format(icid=id) if different_initial_conditions else icid),
-                id = (0 if different_initial_conditions else id)
+                id = (0 if not different_initial_conditions else id)
             )
             intgr_result.from_file_or_run(
                 intgr, 
