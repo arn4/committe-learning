@@ -9,7 +9,7 @@ These classes should be the base for all ODE integrations.
 """
 
 class BaseODE():
-  def __init__(self, P0, Q0, M0, dt, noise_term, disableQM_save = False):
+  def __init__(self, P0, Q0, M0, dt, noise_term, disable_QM_save = False):
     assert(Q0.shape[0] == Q0.shape[1])
     assert(Q0.shape[1] == M0.shape[0])
     assert(M0.shape[1] == P0.shape[0])
@@ -30,7 +30,7 @@ class BaseODE():
 
     self.noise_term = noise_term
 
-    self.disableQM_save = disableQM_save
+    self.disable_QM_save = disable_QM_save
 
     """
     Include here the other variables you want to store.
@@ -67,8 +67,8 @@ class BaseODE():
 
 
 class BaseFullODE(BaseODE):
-  def __init__(self, P0, Q0, M0, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, disableQM_save=False):
-    super().__init__(P0, Q0, M0, dt, noise_term, disableQM_save)
+  def __init__(self, P0, Q0, M0, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, disable_QM_save=False):
+    super().__init__(P0, Q0, M0, dt, noise_term, disable_QM_save)
 
     self.Q = np.array(Q0, ndmin=2, dtype=scalar_type)
     if noise_term:
@@ -82,7 +82,7 @@ class BaseFullODE(BaseODE):
 
   def _save_step(self, step):
     super()._save_step(step)
-    if not self.disableQM_save:
+    if not self.disable_QM_save:
       self.saved_Ms.append(np.copy(self.M))
       self.saved_Qs.append(np.copy(self.Q))
 
@@ -92,8 +92,8 @@ class BaseLargePODE(BaseODE):
   We just need to track the diagonal of Q^orth and M, so no need to evolve a p x p matrix,
   that would be unfesible.
   """
-  def __init__(self, P0, Q0, M0, dt, offdiagonal = True, d = None, noise_term = True, noise_gamma_over_p = None, disableQM_save=False):
-    super().__init__(P0, Q0, M0, dt, noise_term, disableQM_save)
+  def __init__(self, P0, Q0, M0, dt, offdiagonal = True, d = None, noise_term = True, noise_gamma_over_p = None, disable_QM_save=False):
+    super().__init__(P0, Q0, M0, dt, noise_term, disable_QM_save)
 
     if offdiagonal:
       assert(d is not None)
@@ -113,7 +113,7 @@ class BaseLargePODE(BaseODE):
 
   def _save_step(self, step):
     super()._save_step(step)
-    if not self.disableQM_save:
+    if not self.disable_QM_save:
       self.saved_Ms.append(np.copy(self.M))
       self.saved_Qorths.append(np.copy(self.Qorth))
 

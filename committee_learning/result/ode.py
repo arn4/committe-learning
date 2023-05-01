@@ -33,9 +33,6 @@ class BaseODEResult(BaseResult):
   def from_file_or_run(self, ode, decades, save_per_decade = 100, path='',show_progress=True, force_run=False, force_read=False):
     self.from_ode(ode)
     self.simulated_time = float(10**decades)
-    # I have to differentiate between the value I want and what I get.
-    # This one is used for the datastring, meanwhile the other is only stored in the save file
-    self.save_per_decade_target = save_per_decade 
     try:
       if force_run:
         raise FileNotFoundError
@@ -52,7 +49,7 @@ class BaseODEResult(BaseResult):
 # - 0.1: first usable version
 # - 0.2: BIG change -- this becomes the Result Class for all ODEs
 # - 0.3: noise_term
-# - 0.4: typo in datastring + added save_per_decade_target in the datastring
+# - 0.4: typo in datastring + added save_per_decade
 
 class FullODEResult(BaseODEResult):
   def __init__(self, initial_condition = None, id = 0, **kattributes):
@@ -81,7 +78,7 @@ class FullODEResult(BaseODEResult):
       f"{self.dt:.6f}",
       f'{self.noise_term}',
       f"{self.id}",
-      f"{self.save_per_decade_target}"
+      f"{self.save_per_decade}"
     ]
 
 

@@ -3,24 +3,24 @@ from ...ode import SquaredActivationODE, SphericalSquaredActivationODE
 import numpy as np
 from scipy.linalg import sqrtm
 
-from ..base import BaseSDE
 from .variance import _variance_q, _variance_m, _covariance_qm
 
-class PhaseRetrievalSDE(BaseSDE, SquaredActivationODE):
+class PhaseRetrievalSDE(SquaredActivationODE):
 
-  def __init__(self, p0, q0, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None):
+  def __init__(self, p0, q0, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None, disable_QM_save=False):
     super().__init__(
       P0 = np.array([[p0]]) if isinstance(p0, float) else p0,
       Q0 = np.array([[q0]]) if isinstance(q0, float) else q0,
       M0 = np.array([[m0]]) if isinstance(m0, float) else m0,
+      d = d,
       dt = dt,
       noise_term = noise_term,
       gamma_over_p = gamma_over_p,
       noise = noise,
       quadratic_terms = quadratic_terms,
-      seed = seed
+      seed = seed,
+      disable_QM_save=disable_QM_save
     )
-    self.d = float(d)
 
   def _variances(self):
     q = self.Q[0][0]
@@ -41,11 +41,11 @@ class PhaseRetrievalSDE(BaseSDE, SquaredActivationODE):
 
 
 class SphericalPhaseRetrievalSDE(PhaseRetrievalSDE, SphericalSquaredActivationODE):
-  def __init__(self, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, extra_drift = False, seed = None):
+  def __init__(self, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, extra_drift = False, seed = None, disable_QM_save=False):
     super().__init__(
       p0 = 1., q0 = 1., m0 = m0, d = d, dt = dt,
       noise_term = noise_term, gamma_over_p = gamma_over_p, noise = noise,
-      quadratic_terms = quadratic_terms, seed = seed
+      quadratic_terms = quadratic_terms, seed = seed, disable_QM_save=disable_QM_save
     )
     self.extra_drift = extra_drift
 
