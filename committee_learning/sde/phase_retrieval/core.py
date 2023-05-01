@@ -3,9 +3,10 @@ from ...ode import SquaredActivationODE, SphericalSquaredActivationODE
 import numpy as np
 from scipy.linalg import sqrtm
 
+from ..base import BaseSDE
 from .variance import _variance_q, _variance_m, _covariance_qm
 
-class PhaseRetrievalSDE(SquaredActivationODE):
+class PhaseRetrievalSDE(BaseSDE, SquaredActivationODE):
 
   def __init__(self, p0, q0, m0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None, disable_QM_save=False):
     super().__init__(
