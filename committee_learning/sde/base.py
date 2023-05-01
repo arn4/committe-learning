@@ -5,4 +5,5 @@ class BaseSDE():
     super().__init__(*args, **kwargs)
     self.d = d
     self.seed = seed
+    print(self.seed)
     self.rng = np.random.default_rng(seed)

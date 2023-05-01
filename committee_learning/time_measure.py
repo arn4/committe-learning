@@ -41,10 +41,9 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
     def extract_kwargs(kws):
         return {kw:kwargs[kw] for kw in kws if kw in kwargs}
 
-    run_integration = None
     # Simulation
     if issubclass(Integrator, BaseSimulation):
-        def ri(id):
+        def single_exit_time(id):
             intgr = Integrator(
                 d, p, k, 
                 Wt=ic[id].Wt,
@@ -69,16 +68,23 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                 np.array(intgr_result.steps),
                 np.array(intgr_result.risks)
             )
-        run_integration = ri
     # SDE
     elif issubclass(Integrator, BaseSDE):
-        def ri(id):
-            intgr = Integrator(
-                ic[id].Q, ic[id].M, d,
-                dt = kwargs['dt'],
-                **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
-                seed = (0 if different_initial_conditions else id)
-            )
+        def single_exit_time(id):
+            if p > 1:
+                intgr = Integrator(
+                    ic[id].Q, ic[id].M, d,
+                    dt = kwargs['dt'],
+                    **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
+                    seed = (0 if different_initial_conditions else id)
+                )
+            else:
+                intgr = Integrator(
+                    ic[id].M, d,
+                    dt = kwargs['dt'],
+                    **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
+                    seed = (0 if different_initial_conditions else id)
+                )
             intgr_result = PhaseRetrievalSDEResult(
                 initial_condition='time-measure'+(icid.format(icid=id) if different_initial_conditions else icid),
                 id = (0 if different_initial_conditions else id)
@@ -94,17 +100,10 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                 np.array(intgr_result.times),
                 np.array(intgr_result.risks)
             )
-        run_integration = ri
     else:
         raise TypeError(f'Not recognized class type: {type(Integrator)}')
 
-    # if kwargs['force_read']:
-    #     pool = Pool(cpu=12)
-    #     exit_times = np.array(
-    #         list(pool.map(single_exit_time, to_be_run_on))
-    #     )
-    # else:
     exit_times = np.array(
-        [exit_time(*run_integration(id), T) for id in tqdm(to_be_run_on)]
+        list(map(single_exit_time, to_be_run_on))
     )
     return exit_times.mean(), exit_times.std()
