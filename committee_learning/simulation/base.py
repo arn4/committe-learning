@@ -7,7 +7,7 @@ import warnings
 from .._config.python import scalar_type
 
 class BaseSimulation():
-  def __init__(self, d: int, p: int, k: int, gamma: float, Wt: np.array, W0: np.array, noise: float, activation: str, disable_QM_save: bool, extra_metrics: dict):
+  def __init__(self, d: int, p: int, k: int, gamma: float, Wt: np.array, W0: np.array, noise: float, activation: str, seed, disable_QM_save: bool, extra_metrics: dict):
     self.d = d
     self.p = p
     self.k = k
@@ -23,6 +23,10 @@ class BaseSimulation():
     self.saved_Qs = list()
 
     self._completed_steps = 0
+
+    self.seed = seed
+    if seed is not None:
+      torch.manual_seed(seed)
 
     if not disable_QM_save and extra_metrics != {}:
       warnings.warn('Storing Q,M and having extra metrics is redundant! Consider to store matrices and compute from results, or just compute withut storing the Q and M.')
@@ -76,8 +80,6 @@ class BaseSimulation():
 
     self._completed_steps += steps
 
-  def fit_logscale(self, decades, save_per_decade = 100, seed = None, show_progress = True):
-    if seed is not None:
-      torch.manual_seed(seed)
+  def fit_logscale(self, decades, save_per_decade = 100, show_progress = True):
     for d in range(int(np.ceil(decades))+1):
       self.fit(int(10**min(d,decades))-self._completed_steps, save_per_decade, show_progress=show_progress)
