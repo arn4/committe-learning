@@ -42,6 +42,7 @@ class BaseODEResult(BaseResult):
       self.from_file(path=path)
     except FileNotFoundError as file_error:
       if force_read:
+        print(f'Not found {self.datastring}')
         raise file_error
       ode.fit_logscale(decades, save_per_decade=save_per_decade, show_progress=show_progress)
       self.from_ode(ode)

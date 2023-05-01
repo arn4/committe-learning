@@ -46,8 +46,8 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
         def single_exit_time(id):
             intgr = Integrator(
                 d, p, k, 
-                Wt=ic[id].Wt,
-                W0 = ic[id].W0,
+                Wt=ic[id].Wt if different_initial_conditions else ic.Wt,
+                W0 = ic[id].W0 if different_initial_conditions else ic.W0,
                 gamma=gamma,
                 activation = kwargs['activation'],
                 **extract_kwargs(['noise', 'disable_QM_save', 'extra_metrics']),
@@ -73,14 +73,17 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
         def single_exit_time(id):
             if p > 1:
                 intgr = Integrator(
-                    ic[id].Q, ic[id].M, d,
+                    ic[id].Q if different_initial_conditions else ic.Q,
+                    ic[id].M if different_initial_conditions else ic.M,
+                    d,
                     dt = kwargs['dt'],
                     **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
                     seed = (0 if different_initial_conditions else id)
                 )
             else:
                 intgr = Integrator(
-                    ic[id].M, d,
+                    ic[id].M if different_initial_conditions else ic.M,
+                    d,
                     dt = kwargs['dt'],
                     **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
                     seed = (0 if different_initial_conditions else id)
