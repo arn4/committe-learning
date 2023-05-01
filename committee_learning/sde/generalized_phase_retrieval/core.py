@@ -13,11 +13,10 @@ q11, q12,..., q1p, q22, q23, q24,..., q2p,...,qpp, m11, m21,...,mp1
 """
 
 class SphericalGeneralizedPhaseRetrievalSDE(BaseSDE, SphericalSquaredActivationODE):
-    def __init__(self, Q0, M0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None):
+    def __init__(self, Q0, M0, d, dt, noise_term = True, gamma_over_p = None, noise = None, quadratic_terms = False, seed = None, disable_QM_save=False):
         # assert(sum((np.diag(Q0)-np.ones((Q0.shape[0])))**2)==0.)
         P0 = np.array([[1.]])
-        super().__init__(P0, Q0, M0, dt, noise_term = noise_term, gamma_over_p = gamma_over_p, noise = noise, quadratic_terms = quadratic_terms, seed=seed)
-        self.d = float(d)
+        super().__init__(d, P0, Q0, M0, dt, noise_term = noise_term, gamma_over_p = gamma_over_p, noise = noise, quadratic_terms = quadratic_terms, seed=seed, disable_QM_save=disable_QM_save)
 
         if Q0.shape[0] == 2:
             def _variance_method(M, Q):
