@@ -52,22 +52,7 @@ class BaseSimulation():
     for step in tqdm(range(self._completed_steps+1,self._completed_steps+steps+1), disable= not show_progress):
       # Add data if necessary
       if step%plot_frequency == 0:
-        self.saved_steps.append(step)
-        Ws = self.student.get_weight()
-
-        M = (Ws @ self.Wt.T/self.d).astype(scalar_type)
-        Q = (Ws @ Ws.T/self.d).astype(scalar_type)
-
-        # Store metrics
-        if not self.disable_QM_save:
-          self.saved_Ms.append(M)
-          self.saved_Qs.append(Q)
-
-        self.saved_risks.append(self.theoretical_risk(Q,M,self.P))
-
-        for metric_name, metric in self.extra_metrics.items():
-          metric_list = getattr(self, metric_name)
-          metric_list.append(metric(Q,M,self.P))
+        self._save_step(step)
 
       # Compute the sample
       x = torch.normal(0., 1., (1,self.d,))
@@ -83,3 +68,21 @@ class BaseSimulation():
   def fit_logscale(self, decades, save_per_decade = 100, show_progress = True):
     for d in range(int(np.ceil(decades))+1):
       self.fit(int(10**min(d,decades))-self._completed_steps, save_per_decade, show_progress=show_progress)
+
+  def _save_step(self, step):
+    self.saved_steps.append(step)
+    Ws = self.student.get_weight()
+
+    M = (Ws @ self.Wt.T/self.d).astype(scalar_type)
+    Q = (Ws @ Ws.T/self.d).astype(scalar_type)
+
+    # Store metrics
+    if not self.disable_QM_save:
+      self.saved_Ms.append(M)
+      self.saved_Qs.append(Q)
+
+    self.saved_risks.append(self.theoretical_risk(Q,M,self.P))
+
+    for metric_name, metric in self.extra_metrics.items():
+      metric_list = getattr(self, metric_name)
+      metric_list.append(metric(Q,M,self.P))

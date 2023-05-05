@@ -70,7 +70,7 @@ class SphericalPhaseRetrievalSDE(PhaseRetrievalSDE, SphericalSquaredActivationOD
     varQ, varM, covQM = self._variances()
 
     Sigma = np.array([[varQ, covQM],
-                      [covQM, varM]]) / (self.d) * self._gamma_over_p
+                      [covQM, varM]]) / (self.d) #* self._gamma_over_p
     # std matrix
     sigma_q, sigma_m = sqrtm(Sigma).real
 

@@ -4,6 +4,7 @@ import hashlib
 
 from .base import BaseResult
 from ..simulation.base import BaseSimulation
+from ..simulation.second_layer import TwoLayerSimulation
 from ..utilities import upper_bound
 
 
@@ -77,15 +78,38 @@ class SimulationResult(BaseResult):
       simulation.fit_logscale(decades, save_per_decade = save_per_decade, show_progress=show_progress)
       self.from_simulation(simulation)
       self.to_file(path=path)
+  
+  @property
+  def times(self):
+    return np.array(self.steps)*self.gamma/(self.p*self.d)
 
   def _step_to_index(self,step):
     return upper_bound(step, self.steps)
 
   def _time_to_index(self,t):
-    return self._step_to_index(int(t*self.d))
+    return self._step_to_index(int(t*self.d*self.p/self.gamma))
 
   def M_at_time(self, t):
     return np.array(self.Ms[self._time_to_index(t)])
   
   def Q_at_time(self, t):
     return np.array(self.Qs[self._time_to_index(t)])
+  
+class TwoLayerSimulationResult(SimulationResult):
+  def from_simulation(self, simulation: TwoLayerSimulation):
+    super().from_simulation(simulation)
+    self.ass = np.array(simulation.saved_as).tolist()
+    self.at = np.array(simulation.at).tolist()
+    self.normalized_first = simulation.spherical_weights
+    self.normalized_second = simulation.normalized_second_layer
+  
+  @property
+  def datastring(self):
+    return super().datastring + [
+      str(self.normalized_first),
+      str(self.normalized_second),
+      'two_layer'
+    ]
+  
+  def a_at_time(self, t):
+    return np.array(self.ass[self._time_to_index(t)])

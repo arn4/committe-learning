@@ -26,6 +26,22 @@ def square_risk(Q, M, P):
 
   return float(Rt + Rs + Rst)/2.
 
+def two_layer_square_risk(Q, M, P, a, at):
+  p = Q.shape[0]
+  k = P.shape[0]
+
+  a_diagQ = np.dot(a,np.diag(Q))
+  at_diagP = np.dot(at,np.diag(P))
+  QQ = Q*Q # Achtung, this is different from what I usally mean for QQ
+  MM = M*M # Same here
+  PP = P*P # Same here
+
+  Rt = 1./square(k) * (square(at_diagP) + 2.* at @ PP @ at)
+  Rs = 1./square(p) * (square(a_diagQ) + 2.* a @ QQ @ a)
+  Rst = -2./(p*k) * (a_diagQ*at_diagP + 2.* a @ MM @ at)
+
+  return float(Rt + Rs + Rst)/2.
+
 
 
 cdef extern from '../ode/erf_integrals.cpp':

@@ -14,12 +14,23 @@ def exit_time(ts, Rs, T, R0 = None):
     time_index = np.argmin(Rs > R0*(1.-T))
 
     if Rs[time_index] > R0*(1.-T):
-        # raise ValueError('The theshold is never crossed!')
-        return ts[-1]
+        raise ValueError('The theshold is never crossed!')
+        # return ts[-1]
+    return ts[time_index]
+
+def escape_time(ts, As, factor, A0 = None):
+    assert(ts.shape == As.shape)
+    if A0 == None:
+        A0 = As[0]
+    time_index = np.argmin(As < A0*factor)
+
+    if As[time_index] < A0*factor:
+        raise ValueError('The theshold is never crossed!')
+        # return ts[-1]
     return ts[time_index]
 
 
-def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '', different_initial_conditions=False, **kwargs):
+def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '', different_initial_conditions=False, xor_seed = 0, allow_missing=False, **kwargs):
     try:
         to_be_run_on = list(ids)
     except TypeError:
@@ -51,11 +62,13 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                 gamma=gamma,
                 activation = kwargs['activation'],
                 **extract_kwargs(['noise', 'disable_QM_save', 'extra_metrics']),
-                seed = (0 if different_initial_conditions else id)
+                # seed = 0
+                seed = (id^xor_seed)
             )
             intgr_result = SimulationResult(
                 initial_condition='time-measure'+(icid.format(icid=id) if different_initial_conditions else icid),
-                id = (0 if not different_initial_conditions else id)
+                id = (0 if different_initial_conditions else id)
+                # id = id
             )
             intgr_result.from_file_or_run(
                 intgr, 
@@ -64,9 +77,10 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                 show_progress=False,
                 **extract_kwargs(['force_run', 'force_read', 'save_per_decade'])
             )
-            return (
-                np.array(intgr_result.steps),
-                np.array(intgr_result.risks)
+            return exit_time(
+                np.array(intgr_result.steps)*gamma/(p*d),
+                np.array(intgr_result.risks),
+                T
             )
     # SDE
     elif issubclass(Integrator, BaseSDE):
@@ -78,7 +92,7 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                     d,
                     dt = kwargs['dt'],
                     **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
-                    seed = (0 if different_initial_conditions else id)
+                    seed = (id^xor_seed)
                 )
             else:
                 intgr = Integrator(
@@ -99,14 +113,22 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                 show_progress=False,
                 **extract_kwargs(['force_run', 'force_read', 'save_per_decade'])
             )
-            return (
+            return exit_time(
                 np.array(intgr_result.times),
-                np.array(intgr_result.risks)
+                np.array(intgr_result.risks),
+                T
             )
     else:
-        raise TypeError(f'Not recognized class type: {type(Integrator)}')
+        raise TypeError(f'Not recognized class type: {Integrator}')
 
-    exit_times = np.array(
-        list(map(single_exit_time, to_be_run_on))
-    )
+    exit_times_results = []
+    for id in to_be_run_on:
+        try:
+            exit_times_results.append(single_exit_time(id))
+        except FileNotFoundError as e:
+            if allow_missing:
+                pass
+            else:
+                raise e
+    exit_times = np.array(exit_times_results)
     return exit_times.mean(), exit_times.std()
