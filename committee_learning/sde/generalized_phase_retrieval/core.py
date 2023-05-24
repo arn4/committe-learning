@@ -35,10 +35,10 @@ class SphericalGeneralizedPhaseRetrievalSDE(BaseSDE, SphericalSquaredActivationO
         variance = self._variance(self.M, self.Q)
         try:
             # sigma = sqrtm(variance).real * self._gamma_over_p/self.d
-            sigma = sqrtm(variance).real / self.d
-        except ValueError:
-            print(variance)
-            exit(1)
+            sigma = sqrtm(variance).real * np.sqrt(self._gamma_over_p/self.d)
+            # print('some')
+        except ValueError as error:
+            raise error(f"Unable to compute the matrix sqrt of {variance}")
         brownian = self.rng.normal(size=variance.shape[0]) 
 
         unconstrainted_stochastic_term = np.einsum('ij,j->i', sigma, brownian)

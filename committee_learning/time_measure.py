@@ -85,7 +85,7 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
     # SDE
     elif issubclass(Integrator, BaseSDE):
         def single_exit_time(id):
-            if p > 1:
+            if p > 0:
                 intgr = Integrator(
                     ic[id].Q if different_initial_conditions else ic.Q,
                     ic[id].M if different_initial_conditions else ic.M,
@@ -93,14 +93,6 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                     dt = kwargs['dt'],
                     **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
                     seed = (id^xor_seed)
-                )
-            else:
-                intgr = Integrator(
-                    ic[id].M if different_initial_conditions else ic.M,
-                    d,
-                    dt = kwargs['dt'],
-                    **extract_kwargs(['noise_term','noise', 'gamma_over_p', 'quadratic_terms']),
-                    seed = (0 if different_initial_conditions else id)
                 )
             intgr_result = PhaseRetrievalSDEResult(
                 initial_condition='time-measure'+(icid.format(icid=id) if different_initial_conditions else icid),
