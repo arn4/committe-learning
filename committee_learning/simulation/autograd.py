@@ -19,6 +19,8 @@ class CommiteeMachine(torch.nn.Module):
       self.activation = lambda x: x**2
     elif activation == 'relu':
       self.activation = lambda x: torch.maximum(x, torch.zeros(x.shape[-1]))
+    elif activation == 'H3':
+      self.activation = lambda x: x**3 - 3*x
       
     if teacher:
       with torch.no_grad():
@@ -45,7 +47,7 @@ class Simulation(BaseSimulation):
     self.teacher = CommiteeMachine(d, k, activation=activation, W=Wt, teacher=True)
     self.student = CommiteeMachine(d, p, activation=activation, W=W0)
 
-    if activation == 'erf':
+    if activation == 'erf' or activation == 'H3':
       self.theoretical_risk = erf_risk
     elif activation == 'square':
       self.theoretical_risk = square_risk
