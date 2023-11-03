@@ -1,2 +1,2 @@
-from .square import SquaredActivationODE, SphericalSquaredActivationODE, LargePSquaredActivationODE #, SphericalLargePSquaredActivationODE
-from .erf import ErfActivationODE, LargePErfActivationODE
+from .square import SquaredActivationFullODE, SphericalSquaredActivationFullODE, LargePSquaredActivationODE #, SphericalLargePSquaredActivationODE
+from .erf import ErfActivationFullODE, SphericalErfActivationFullODE, LargePErfActivationODE

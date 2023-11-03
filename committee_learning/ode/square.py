@@ -3,7 +3,7 @@ from tqdm import tqdm
 import math
 
 from .._config.python import scalar_type
-from .base import BaseODE, BaseFullODE, BaseLargePODE
+from .base import BaseODE, BaseFullODE, BaseLargePODE, BaseSphericalFullODE
 
 class BaseSquaredActivationODE(BaseODE):
   def __init__(self, P0, Q0, M0, dt, noise_term, disable_QM_save=False):
@@ -29,13 +29,7 @@ class BaseSquaredActivationODE(BaseODE):
     Rst = -two * self._1_pk * (trQ*self.trP + two*trMMt)
     return (Rt + Rs + Rst)/two
 
-class SquaredActivationODE(BaseFullODE, BaseSquaredActivationODE):
-  """
-  NB: the time scaling used is t = nu * (gamma/(pd)).
-  This is different from what I did in Master Internship (where t = nu / d),
-  but this is the best choice to use this equations in general.
-  """
-
+class SquaredActivationFullODE(BaseFullODE, BaseSquaredActivationODE):
   def _compute_Phi_Psi(self):
     """
     This method just compute the RHS of the ODEs:
@@ -91,27 +85,8 @@ class SquaredActivationODE(BaseFullODE, BaseSquaredActivationODE):
 
     return Phi, Psi
 
-  def _update_step(self):
-    Phi, Psi = self._compute_Phi_Psi()
-    self.Q += Phi * self.dt
-    self.M += Psi * self.dt
-
-class SphericalSquaredActivationODE(SquaredActivationODE):
-  def _compute_Phi_Psi(self):
-    # Unconstrainted updtes
-    Phi, Psi = super()._compute_Phi_Psi()
-
-    diagQ = np.diag(Phi)
-    row_diagQ = np.tile(diagQ, (int(self.p),1))
-
-
-    Phi_constraint = self.Q*(row_diagQ+row_diagQ.T)/scalar_type(2)
-    Psi_constraint = self.M*np.tile(diagQ, (int(self.k),1)).T/scalar_type(2)
-
-    Phi -= Phi_constraint
-    Psi -= Psi_constraint
-    return Phi, Psi
-
+class SphericalSquaredActivationFullODE(BaseSphericalFullODE, SquaredActivationFullODE):
+  pass
 
 class LargePSquaredActivationODE(BaseLargePODE, BaseSquaredActivationODE):
   """
@@ -153,11 +128,6 @@ class LargePSquaredActivationODE(BaseLargePODE, BaseSquaredActivationODE):
       Rs += self._1_pp * two*np.sum(np.einsum('i,j->ij', self.Qorth, self.Qorth)-np.diag(self.Qorth)**2)/(self.d-self.k)
     Rst = -two * self._1_pk * (trQ*self.trP + two*trMMt)
     return (Rt + Rs + Rst)/two
-
-  def _update_step(self):
-    Psi, Gamma = self._compute_Psi_Gamma()
-    self.Qorth += Gamma * self.dt
-    self.M += Psi * self.dt
 
 
 
