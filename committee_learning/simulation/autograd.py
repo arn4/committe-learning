@@ -3,7 +3,7 @@ import torch
 import numpy as np
 
 from .base import BaseSimulation
-from .._cython.risk import erf_risk, square_risk
+from .._cython.risk import erf_risk, square_risk, H3_risk
 
 
 class CommiteeMachine(torch.nn.Module):
@@ -19,10 +19,12 @@ class CommiteeMachine(torch.nn.Module):
       self.activation = lambda x: x**2
     elif activation == 'relu':
       self.activation = lambda x: torch.maximum(x, torch.zeros(x.shape[-1]))
+    elif activation == 'H3':
+      self.activation = lambda x: x**3 - 3*x
       
     if teacher:
       with torch.no_grad():
-        self.layer.weight = torch.nn.Parameter(torch.tensor(W).float())
+        self.layer.weight = torch.nn.Parameter(torch.tensor(W).float(), requires_grad=False)
     else:
       self.layer.weight = torch.nn.Parameter(torch.tensor(W).float())
 
@@ -49,7 +51,11 @@ class Simulation(BaseSimulation):
       self.theoretical_risk = erf_risk
     elif activation == 'square':
       self.theoretical_risk = square_risk
+    elif activation == 'H3':
+      self.theoretical_risk = H3_risk
     elif activation == 'relu':
+      raise NotImplementedError
+    else:
       raise NotImplementedError
 
   def _gradient_descent_step(self, y_student, y_teacher_noised, x):

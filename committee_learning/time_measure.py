@@ -1,6 +1,5 @@
 
 import numpy as np
-from pathos.multiprocessing import ProcessingPool as Pool
 from tqdm import tqdm
 
 from .simulation.base import BaseSimulation
@@ -74,8 +73,8 @@ def expected_exit_time(Integrator, gamma, ic, T, log_time, ids, path, icid = '',
                 intgr, 
                 decades = log_time+np.log10(d*p/gamma),
                 path=path,
-                show_progress=False,
-                **extract_kwargs(['force_run', 'force_read', 'save_per_decade'])
+                # show_progress=False,
+                **extract_kwargs(['force_run', 'force_read', 'save_per_decade', 'show_progress'])
             )
             return exit_time(
                 np.array(intgr_result.steps)*gamma/(p*d),

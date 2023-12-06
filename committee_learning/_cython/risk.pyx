@@ -111,3 +111,35 @@ def erf_risk_Zexpectation(np.ndarray[DTYPE_t, ndim=1] Qorth, np.ndarray[DTYPE_t,
       risk += square(one_over_p) * I2_C12expectation(Qdiag[j], MMt[j,l], sqrt_QoQo[j,l], Qdiag[l], Z_dimension)
 
   return risk
+
+
+cdef extern from '../ode/H3_integrals.cpp':
+  cdef inline DTYPE_t H3_I2 "committee_learning::H3ode::I2" (DTYPE_t C11, DTYPE_t C12, DTYPE_t C22)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.cdivision(True)
+cpdef H3_risk(np.ndarray[DTYPE_t, ndim=2] Q, np.ndarray[DTYPE_t, ndim=2] M, np.ndarray[DTYPE_t, ndim=2] P):
+  cdef DTYPE_t risk = 0.
+
+  cdef int p = Q.shape[0]
+  cdef int k = P.shape[0]
+  cdef DTYPE_t one_over_p = 1./p
+  cdef DTYPE_t one_over_k = 1./k
+
+  cdef int j,l
+
+  # Teacher-Teacher
+  for j in range(0,k):
+    for l in range(0,k):
+      risk += square(one_over_k) * H3_I2(P[j,j], P[j,l], P[l,l])
+  # Teacher-Student
+  for j in range(0,p):
+    for l in range(0,k):
+      risk -= 2*one_over_p*one_over_k * H3_I2(Q[j,j], M[j,l], P[l,l])
+  # Student-Student
+  for j in range(0,p):
+    for l in range(0,p):
+      risk += square(one_over_p) * H3_I2(Q[j,j], Q[j,l], Q[l,l])
+
+  return risk

@@ -44,6 +44,14 @@ def get_extensions():
       extra_compile_args=extra_compile_args
   )
 
+  cython_ode_H3 = Extension(
+      name='committee_learning.ode.cython_H3',
+      sources=['committee_learning/ode/H3.pyx', 'committee_learning/ode/H3_integrals.cpp'],
+      include_dirs=include_dirs,
+      language = 'cpp',
+      extra_compile_args=extra_compile_args
+  )
+
   cython_risk = Extension(
       name='committee_learning._cython.risk',
       sources=['committee_learning/_cython/risk.pyx', 'committee_learning/ode/erf_integrals.cpp'],
@@ -59,7 +67,7 @@ def get_extensions():
   )
 
   return cythonize(
-    [cython_risk, cython_ode_erf, cython_numpy_extra],
+    [cython_risk, cython_ode_erf, cython_ode_H3, cython_numpy_extra],
     compiler_directives={'language_level':3},
     annotate=True
   )

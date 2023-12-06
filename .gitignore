@@ -260,3 +260,4 @@ committee_learning/**/*.so
 committee_learning/_cython/risk.cpp
 committee_learning/_cython/numpy_extra.cpp
 committee_learning/ode/erf.cpp
+committee_learning/ode/H3.cpp

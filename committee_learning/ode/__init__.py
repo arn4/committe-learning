@@ -1,2 +1,3 @@
 from .square import SquaredActivationFullODE, SphericalSquaredActivationFullODE, LargePSquaredActivationODE #, SphericalLargePSquaredActivationODE
 from .erf import ErfActivationFullODE, SphericalErfActivationFullODE, LargePErfActivationODE
+from .H3 import H3ActivationFullODE, SphericalH3ActivationFullODE

@@ -6,6 +6,7 @@ from .base import BaseResult
 from ..ode.base import BaseFullODE, BaseLargePODE
 from ..ode.square import BaseSquaredActivationODE
 from ..ode.erf import BaseErfActivationODE
+from ..ode.H3 import BaseH3ActivationODE
 
 class BaseODEResult(BaseResult):
   def __init__(self, initial_condition = None, id = 0, **kattributes):
@@ -26,6 +27,8 @@ class BaseODEResult(BaseResult):
       self.activation = 'squared'
     elif issubclass(type(ode), BaseErfActivationODE):
       self.activation = 'erf'
+    elif issubclass(type(ode), BaseH3ActivationODE):
+      self.activation = 'H3'
     else:
       raise TypeError('Unrecognized activation function for type '+ode.__class__.__name__)
     self.noise_term = ode.noise_term
